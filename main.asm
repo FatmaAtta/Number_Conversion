@@ -10,6 +10,8 @@ to: .word
 
 numberValidation: .asciiz "0123456789ABCDEF"
 
+global_t0: .byte
+
 .text
 main:
 #input the number
@@ -39,6 +41,17 @@ syscall
 
 function_validate:
 	#validate(t0 = num, t1 = base)
+	la $t0, number
+	j loop
+loop:
+	lb $t1, 0($t0)
+	beqz $t1, end_loop
+	#body
+	j validate
+	addi $t0, $t0, 1 #increment
+	
+end_loop:
+	
 	
 
 
