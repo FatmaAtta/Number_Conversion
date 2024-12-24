@@ -8,8 +8,6 @@ number: .space 100             # Allocate space for number input
 from: .word 0                  # Initialize the base variable to 0
 to: .word 0                    # Initialize the desired base variable to 0
 
-numberValidation: .asciiz "0123456789ABCDEF"
-
 errorStatement: .asciiz " doesn't belong to the system "
 
 .text
@@ -54,6 +52,10 @@ loop:
     # Check if the character is valid for the given base
     jal validate
 
+    #addi $t0, $t0, 1           # Increment the pointer to the next character
+    #j loop
+
+increment:
     addi $t0, $t0, 1           # Increment the pointer to the next character
     j loop
 
@@ -66,12 +68,15 @@ validate:
 if_con:
     addi $t1, $a1, 48          # Convert base to ASCII offset (48 = '0')
     bge $a0, $t1, print_error  # If char >= base, print error
-    jr $ra                      # Return from validate
+    #jr $ra                      # Return from validate
+    j increment
 
 else_con:
     addi $t1, $a1, 55          # Convert base to ASCII offset (55 = 'A')
     bge $a0, $t1, print_error  # If char >= base, print error
-    jr $ra                      # Return from validate
+    #jr $ra       
+    j increment               # Return from validate
+    
 
 print_error:
     # Print the error message
