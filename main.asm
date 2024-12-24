@@ -47,8 +47,8 @@ loop:
 
     # Validate the character based on the base
     la $t3, from
-    lw $a1, 0($t3)             # Load base from 'from'
-
+    lw $a0, 0($t3)             # Load base from 'from'
+    move $a1, $t1
     # Check if the character is valid for the given base
     jal validate
 
@@ -62,18 +62,18 @@ increment:
 validate:
     # Validate current character based on the base
     # a0 is the current character, a1 is the base
-    ble $a1, 10, if_con        # If base <= 10, check valid digits 0-9
+    ble $a0, 10, if_con        # If base <= 10, check valid digits 0-9
     j else_con                 # Otherwise, check valid digits A-F
 
 if_con:
-    addi $t1, $a1, 48          # Convert base to ASCII offset (48 = '0')
-    bge $a0, $t1, print_error  # If char >= base, print error
+    addi $t1, $a0, 48          # Convert base to ASCII offset (48 = '0')
+    bge $a1, $t1, print_error  # If char >= base, print error
     #jr $ra                      # Return from validate
     j increment
 
 else_con:
-    addi $t1, $a1, 55          # Convert base to ASCII offset (55 = 'A')
-    bge $a0, $t1, print_error  # If char >= base, print error
+    addi $t1, $a0, 55          # Convert base to ASCII offset (55 = 'A')
+    bge $a1, $t1, print_error  # If char >= base, print error
     #jr $ra       
     j increment               # Return from validate
     
