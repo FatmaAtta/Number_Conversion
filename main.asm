@@ -5,10 +5,8 @@ inputFrom: .asciiz "Enter the number's base\n"
 inputTo: .asciiz "Enter the desired base\n"
 
 number: .asciiz
-from: .word
-to: .word
-
-numberValidation: .asciiz "0123456789ABCDEF"
+from: .word 0
+to: .word 0
 
 global_t0: .byte
 
@@ -47,7 +45,7 @@ loop:
 	lb $t1, 0($t0)
 	beqz $t1, end_loop
 	#body
-	addi $t2, $t0, $t1
+	add $t2, $t0, $t1
 	lb $a0, 0($t2)
 	la $t3, from
 	lw $a1, 0($t3)
@@ -96,6 +94,6 @@ end_loop:
 	j exit
 	
 exit:
-	li $vo, 10
+	li $v0, 10
 	syscall
 
