@@ -4,96 +4,99 @@ inputNum: .asciiz "Enter the number you want to convert (use capital letters)\n"
 inputFrom: .asciiz "Enter the number's base\n"
 inputTo: .asciiz "Enter the desired base\n"
 
-number: .asciiz
-from: .word 0
-to: .word 0
+number: .space 100             # Allocate space for number input
+from: .word 0                  # Initialize the base variable to 0
+to: .word 0                    # Initialize the desired base variable to 0
 
-global_t0: .byte
+numberValidation: .asciiz "0123456789ABCDEF"
 
 errorStatement: .asciiz " doesn't belong to the system "
+
 .text
 main:
-#input the number
+# Input the number
 la $a0, inputNum
 li $v0, 4
 syscall
-la $a0, number #stores the input in a0 in variable inputNum
-li $a1, 100 #max size of input
-li $v0, 8 #syscall to read a string
+la $a0, number                # Store the input in 'number'
+li $a1, 100                    # Max size of input
+li $v0, 8                      # Syscall to read a string
 syscall
-#input the base
+
+# Input the base
 la $a0, inputFrom
 li $v0, 4
 syscall
-la $a0, from #stores the input in a0 in variable inputNum
-li $v0, 5 #syscall to read an int
+li $v0, 5                      # Syscall to read an integer (base)
 syscall
-sw $v0, from
-#input the desired base
+sw $v0, from                   # Store the base in 'from'
+
+# Input the desired base
 la $a0, inputTo
 li $v0, 4
 syscall
-la $a0, to #stores the input in a0 in variable inputNum
-li $v0, 5 #syscall to read a string
+li $v0, 5                      # Syscall to read an integer (desired base)
 syscall
+sw $v0, to                     # Store the base in 'to'
 
-function_validate:
-	#validate(t0 = num, t1 = base)
-	la $t0, number
-	j loop
+# Validate the input number
+la $t0, number
+j loop
+
 loop:
-	lb $t1, 0($t0)
-	beqz $t1, end_loop
-	#body
-	add $t2, $t0, $t1
-	lb $a0, 0($t2)
-	la $t3, from
-	lw $a1, 0($t3)
-	j validate
-	addi $t0, $t0, 1 #increment
-	
+    lb $t1, 0($t0)             # Load the next character of 'number'
+    beqz $t1, end_loop         # If it's null, end the loop
+
+    # Validate the character based on the base
+    la $t3, from
+    lw $a1, 0($t3)             # Load base from 'from'
+
+    # Check if the character is valid for the given base
+    jal validate
+
+    addi $t0, $t0, 1           # Increment the pointer to the next character
+    j loop
+
 validate:
-	#a0 is the current char, a1 is the base
-	#if base<=10
-		#if a0 >= base+48 go to printError
-	#else 
-		#if a0 >= base+55 go to printError
-	ble $a1, 10, if_con
-	j else_con
-	jr $ra
+    # Validate current character based on the base
+    # a0 is the current character, a1 is the base
+    ble $a1, 10, if_con        # If base <= 10, check valid digits 0-9
+    j else_con                 # Otherwise, check valid digits A-F
+
 if_con:
-	addi $t1, $a1, 48
-	bge $a0, $t1, print_error
-	jr $ra	
-else_con:	
-	addi $t1, $a1, 55
-	bge $a0, $t1, print_error
-	jr $ra
+    addi $t1, $a1, 48          # Convert base to ASCII offset (48 = '0')
+    bge $a0, $t1, print_error  # If char >= base, print error
+    jr $ra                      # Return from validate
+
+else_con:
+    addi $t1, $a1, 55          # Convert base to ASCII offset (55 = 'A')
+    bge $a0, $t1, print_error  # If char >= base, print error
+    jr $ra                      # Return from validate
+
 print_error:
-	#load the number, base, error statement
-	la $a0, number
-	li $v0, 4
-	syscall
-	
-	la $a0, errorStatement
-	li $v0, 4
-	syscall
-	
-	lw $t0, from
-	move $a0, $t0
-	li $v0, 1
-	syscall
-	
-	li $a0, 10 #ascii of newline
-	li $v0, 11 #code for printing a char
-	syscall
-	
-	j exit
+    # Print the error message
+    la $a0, number
+    li $v0, 4
+    syscall
+
+    la $a0, errorStatement
+    li $v0, 4
+    syscall
+
+    lw $t0, from
+    move $a0, $t0
+    li $v0, 1
+    syscall
+
+    li $a0, 10                 # Print newline
+    li $v0, 11
+    syscall
+
+    j exit
 
 end_loop:
-	j exit
-	
-exit:
-	li $v0, 10
-	syscall
+    j exit
 
+exit:
+    li $v0, 10
+    syscall
