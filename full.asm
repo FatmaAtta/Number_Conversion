@@ -4,6 +4,8 @@ inputNum: .asciiz "Enter the number you want to convert (use capital letters)\n"
 inputFrom: .asciiz "Enter the number's base\n"
 inputTo: .asciiz "Enter the desired base\n"
 
+output: .asciiz "The number in the new base:"
+
 digits: .byte '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'A', 'B', 'C', 'D', 'E', 'F' 
 endl: .asciiz "\n"
 
@@ -116,13 +118,18 @@ convert:
 	lw $t2, to
 	la $a0, number
 	li $a1, 100
+	jal outputStatement
  	jal OtherToDecimal
- 	getDecToOther:
+ getDecToOther:
 	jal DecimalToOther
-	
 	li $v0, 10
  	syscall
 	
+outputStatement:
+	# Input the base
+	la $a0, output
+	li $v0, 4
+	syscall
 
 ######################################### OTHER TO DECIMAL ############################################## 
 # [1] Other To Decimal Function
@@ -160,9 +167,9 @@ OtherToDecimal:
      j InnerLoop
         
 EndOtherToDecimal:
-     li $v0, 1
-     move $a0, $t1
-     syscall
+     #li $v0, 1
+     #move $a0, $t1
+     #syscall
      
      li $v0, 4
      la $a0, endl
