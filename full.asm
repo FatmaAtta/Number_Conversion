@@ -54,7 +54,7 @@ loop:
     move $a1, $t1
     # Check if the character is valid for the given base
     jal validate
-    j convert
+    #j convert
     #addi $t0, $t0, 1           # Increment the pointer to the next character
     #j loop
 
@@ -103,17 +103,25 @@ print_error:
     j exit
 
 end_loop:
-    j exit
+    j convert
 
 exit:
     li $v0, 10
     syscall
     
 convert:
+	la $a1, digits
 	li $s0 , 0
+	lw $t0, from
+	lw $t2, to
+	la $a0, number
+	li $a1, 100
  	jal OtherToDecimal
  	getDecToOther:
 	jal DecimalToOther
+	
+	li $v0, 10
+ 	syscall
 	
 
 ######################################### OTHER TO DECIMAL ############################################## 
